@@ -48,7 +48,6 @@ def createTables():
 def readData():
     # TODO: 1. Read in data, split according to table schema
     #       2. Add data to tables only if data is new
-
     pass
 
 def readChanges():
@@ -56,5 +55,4 @@ def readChanges():
     #       2. Determine severity of changes
     #       3. Change data to code table if update only
     #       4. Insert data into changelog table
-
     pass
