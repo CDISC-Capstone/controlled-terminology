@@ -65,7 +65,8 @@ def read_changes(filePath):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    path = "C:\\Users\\voidt\\Downloads\\SDTM Terminology 2014-10-06.txt"
+    # This uses the ugly %20 for spaces in the url. This could be cleaned up/automated later
+    path = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/SDTM%20Terminology%202014-10-06.txt"
     data = read_data(path)
     Codelists = data[data["Codelist Code"].isna()]
     Terms = data[data["Codelist Code"].notna()]
