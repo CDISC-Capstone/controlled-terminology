@@ -1,7 +1,8 @@
 import sqlite3 as sql
 import pandas as pd
 
-def createTables():
+
+def create_tables():
     conn = sql.connect('CDISC.db')
     c = conn.cursor()
 
@@ -9,8 +10,8 @@ def createTables():
               'Code TEXT,'
               'Term_Type TEXT,'
               'Creation_Date TEXT,'
-              'Deprecated_Date TEXT,'
-              'PRIMARY KEY (Code))')
+              'Deprecation_Date TEXT,'
+              'PRIMARY KEY (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Codelist('
               'Code TEXT,'
@@ -20,7 +21,7 @@ def createTables():
               'Synonyms TEXT,'
               'Definition TEXT,'
               'NCI_Preferred_Term TEXT,'
-              'PRIMARY KEY (Code))')
+              'PRIMARY KEY (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Term('
               'Codelist TEXT,'
@@ -31,7 +32,7 @@ def createTables():
               'Definition TEXT,'
               'NCI_Preferred_Term TEXT,'
               'PRIMARY KEY (Codelist, Code)'
-              'FOREIGN KEY (Codelist) REFERENCES Codelist (Code))')
+              'FOREIGN KEY (Codelist) REFERENCES Codelist (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Changes('
               'Date TEXT,'
@@ -43,16 +44,30 @@ def createTables():
               'Original TEXT,'
               'New TEXT,'
               'PRIMARY KEY (Date, Code)'
-              'FOREIGN KEY (Code) REFERENCES Code (Code))')
+              'FOREIGN KEY (Code) REFERENCES Code (Code));')
 
-def readData():
+
+def read_data(filePath):
     # TODO: 1. Read in data, split according to table schema
     #       2. Add data to tables only if data is new
-    pass
+    print(filePath)
+    data = pd.read_csv(filePath, sep='\t')
+    return(data)
 
-def readChanges():
+
+def read_changes(filePath):
     # TODO: 1. Read in data
     #       2. Determine severity of changes
     #       3. Change data to code table if update only
     #       4. Insert data into changelog table
     pass
+
+
+# Debugging/Testing section
+if __name__ == "__main__":
+    path = "C:\\Users\\voidt\\Downloads\\SDTM Terminology 2014-10-06.txt"
+    data = read_data(path)
+    Codelists = data[data["Codelist Code"].isna()]
+    Terms = data[data["Codelist Code"].notna()]
+    print(Codelists)
+    print(Terms)
