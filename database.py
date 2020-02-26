@@ -1,5 +1,8 @@
 import sqlite3 as sql
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+import re
 
 
 def create_tables():
@@ -65,10 +68,41 @@ def read_changes(filePath):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    # This uses the ugly %20 for spaces in the url. This could be cleaned up/automated later
-    path = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/SDTM%20Terminology%202014-10-06.txt"
-    data = read_data(path)
-    Codelists = data[data["Codelist Code"].isna()]
-    Terms = data[data["Codelist Code"].notna()]
-    print(Codelists)
-    print(Terms)
+    # Reference variables
+    firstPackageDate = "2014-10-06"
+    latestPackageDate = "2014-10-06"
+    archiveLink = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"
+
+    # Extracts archive HTML for BeautifulSoup
+    archiveHTML = requests.get(archiveLink).text
+    soup = BeautifulSoup(archiveHTML, 'html.parser')
+
+    SDTMPackages = []
+    SDTMChanges = []
+    # Finds all SDTM links
+    for link in soup.find_all('a'):
+        # Finds all link references and tests if they are SDTM in .txt format
+        end = link.get('href')
+        SDTM = re.match(r"^SDTM%20Terminology\S*.txt$", end)
+
+        # If it is a SDTM .txt link, split between package and changelist
+        if SDTM:
+            fullURL = archiveLink + end
+            # Uses "Change" instead of "Changes" because of the link for 2016-09-30 changelist
+            change = re.search("Change", end)
+
+            if change:
+                SDTMChanges.append(fullURL)
+            else:
+                SDTMPackages.append(fullURL)
+
+    # TODO: Find a way to put the 2016-09-30 changelist in proper chronological order in the list
+
+    for i in SDTMChanges:
+        print(i)
+
+    #data = read_data(path)
+
+
+    #Codelists = data[data["Codelist Code"].isna()]
+    #Terms = data[data["Codelist Code"].notna()]
