@@ -46,6 +46,7 @@ def create_tables():
               'Change_Summary TEXT,'
               'Original TEXT,'
               'New TEXT,'
+              'Change_Instructions TEXT,'
               'PRIMARY KEY (Date, Code)'
               'FOREIGN KEY (Code) REFERENCES Code (Code));')
 
@@ -70,7 +71,6 @@ def read_changes(filePath):
 if __name__ == "__main__":
     # Reference variables
     firstPackageDate = "2014-10-06"
-    latestPackageDate = "2014-10-06"
     archiveLink = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"
 
     # Extracts archive HTML for BeautifulSoup
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         # If it is a SDTM .txt link, split between package and changelist
         if SDTM:
             fullURL = archiveLink + end
-            # Uses "Change" instead of "Changes" because of the link for 2016-09-30 changelist
+            # Uses "Change" instead of "Changes" because of a typo in the link for 2016-09-30 changelist
             change = re.search("Change", end)
 
             if change:
@@ -96,13 +96,15 @@ if __name__ == "__main__":
             else:
                 SDTMPackages.append(fullURL)
 
-    # TODO: Find a way to put the 2016-09-30 changelist in proper chronological order in the list
+    # Filter out packages/changelists that are before firstPackageDate (initially 2014 Q3)
+    # This also extracts the date from the url to be used for sorting and to be used in the database
+    SDTMPackages = [[i.split("%20")[-1][:-4], i] for i in SDTMPackages if i.split("%20")[-1][:-4] >= firstPackageDate]
+    SDTMChanges = [[i.split("%20")[-1][:-4], i] for i in SDTMChanges if i.split("%20")[-1][:-4] >= firstPackageDate]
 
-    for i in SDTMChanges:
-        print(i)
+    # Sorts by extracted date mostly for the typo noted above, but helps ensure packages are read in chronologically
+    SDTMPackages.sort()
+    SDTMChanges.sort()
 
-    #data = read_data(path)
-
-
-    #Codelists = data[data["Codelist Code"].isna()]
-    #Terms = data[data["Codelist Code"].notna()]
+    # data = read_data(path)
+    # Codelists = data[data["Codelist Code"].isna()]
+    # Terms = data[data["Codelist Code"].notna()]
