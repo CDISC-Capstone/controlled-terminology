@@ -13,6 +13,7 @@ def create_tables():
               'Code TEXT,'
               'Term_Type TEXT,'
               'Creation_Date TEXT,'
+              'Current_Version TEXT,'
               'Deprecation_Date TEXT,'
               'PRIMARY KEY (Code));')
 
@@ -29,7 +30,6 @@ def create_tables():
     c.execute('CREATE TABLE IF NOT EXISTS Term('
               'Codelist TEXT,'
               'Code TEXT,'
-              'Name TEXT,'
               'Submission_Value TEXT,'
               'Synonyms TEXT,'
               'Definition TEXT,'
@@ -51,12 +51,110 @@ def create_tables():
               'FOREIGN KEY (Code) REFERENCES Code (Code));')
 
 
-def read_data(filePath):
-    # TODO: 1. Read in data, split according to table schema
-    #       2. Add data to tables only if data is new
-    print(filePath)
+def read_data(date, filePath):
+    connection = sql.connect('CDISC.db')
     data = pd.read_csv(filePath, sep='\t')
-    return(data)
+
+    # Codelists have "Codelist Code" as NA as Code gives that code
+    codelists = data[data['Codelist Code'].isna()]
+    terms = data[data['Codelist Code'].notna()]
+
+    # Insert codelists into database
+    for i, row in codelists.iterrows():
+        code = row['Code']
+        extensible = row['Codelist Extensible (Yes/No)']
+        name = row['Codelist Name']
+        value = row['CDISC Submission Value']
+        synonyms = row['CDISC Synonym(s)']
+        definition = row['CDISC Definition']
+        nci = row['NCI Preferred Term']
+
+        # Inserts codelist into table
+        try:
+            # Insert into Code table if not already in table
+            connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
+                               'VALUES (?, ?, ?, ?, ?);', (code, "codelist", date, date, None))
+
+            # TODO: Check changelist to see if codelist has been depreciated (for older codelists added later)
+
+            # Insert into Codelist table if not already in table
+            connection.execute('INSERT INTO Codelist(Code, Extensible, Name, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
+                               'VALUES (?, ?, ?, ?, ?, ?, ?);', (code, extensible, name, value, synonyms, definition, nci))
+            connection.commit()
+        # If codelist is already in tables (throws error), update tables as necessary
+        except sql.IntegrityError:
+            # Get version date of what's in the database
+            versionDate = connection.execute('SELECT Current_Version '
+                                             'FROM Code '
+                                             'WHERE Code = ?;', (code,)).fetchall()[0][0]
+
+            # If older package than what's currently on file, do not modify what's in the codelist table
+            if date < versionDate:
+                # The code has existed before what's in code table, update the creation date
+                connection.execute('UPDATE Code '
+                                   'SET Creation_Date = ? '
+                                   'WHERE Code = ?', (date, code))
+            # If newer package, update the code and codelist tables
+            else:
+                # Set this package's date as current version
+                connection.execute('UPDATE Code '
+                                   'SET Current_Version = ? '
+                                   'WHERE Code = ?', (date, code))
+
+                # Update codelist values with current version, even if nothing has changed
+                connection.execute('UPDATE Codelist '
+                                   'SET Extensible = ?, Name = ?, Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
+                                   'WHERE Code = ?;', (extensible, name, value, synonyms, definition, nci, code))
+            connection.commit()
+
+    # Insert terms into database
+    for i, row in terms.iterrows():
+        code = row['Code']
+        codelistCode = row['Codelist Code']
+        value = row['CDISC Submission Value']
+        synonyms = row['CDISC Synonym(s)']
+        definition = row['CDISC Definition']
+        nci = row['NCI Preferred Term']
+
+        # Inserts term into table
+        try:
+            # Insert into Code table if not already in table
+            connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
+                               'VALUES (?, ?, ?, ?, ?);', (code, "term", date, date, None))
+
+            # TODO: Check changelist to see if term has been depreciated (for older terms added later)
+
+            # Insert into Term table if not already in table
+            connection.execute('INSERT INTO Term(Codelist, Code, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
+                               'VALUES (?, ?, ?, ?, ?, ?);', (codelistCode, code, value, synonyms, definition, nci))
+            connection.commit()
+        # If term is already in tables (throws error), update tables as necessary
+        except sql.IntegrityError:
+            # Get version date of what's in the database
+            versionDate = connection.execute('SELECT Current_Version '
+                                             'FROM Code '
+                                             'WHERE Code = ?;', (code,)).fetchall()[0][0]
+
+            # If older package than what's currently on file, do not modify what's in the term table
+            if date < versionDate:
+                # The code has existed before what's in code table, update the creation date
+                connection.execute('UPDATE Code '
+                                   'SET Creation_Date = ? '
+                                   'WHERE Code = ?', (date, code))
+            # If newer package, update the code and term tables
+            else:
+                # Set this package's date as current version
+                connection.execute('UPDATE Code '
+                                   'SET Current_Version = ? '
+                                   'WHERE Code = ?', (date, code))
+
+                # Update term values with current version, even if nothing has changed
+                connection.execute('UPDATE Term '
+                                   'SET Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
+                                   'WHERE Codelist = ? AND Code = ?;', ( value, synonyms, definition, nci, codelistCode, code))
+            connection.commit()
+
+    connection.close()
 
 
 def read_changes(filePath):
@@ -98,13 +196,12 @@ if __name__ == "__main__":
 
     # Filter out packages/changelists that are before firstPackageDate (initially 2014 Q3)
     # This also extracts the date from the url to be used for sorting and to be used in the database
-    SDTMPackages = [[i.split("%20")[-1][:-4], i] for i in SDTMPackages if i.split("%20")[-1][:-4] >= firstPackageDate]
-    SDTMChanges = [[i.split("%20")[-1][:-4], i] for i in SDTMChanges if i.split("%20")[-1][:-4] >= firstPackageDate]
+    # Final form is list with elements in format [date, link]
+    SDTMPackages = [[i.split("%20")[-1][:-4][0:10], i] for i in SDTMPackages if i.split("%20")[-1][:-4] >= firstPackageDate]
+    SDTMChanges = [[i.split("%20")[-1][:-4][0:10], i] for i in SDTMChanges if i.split("%20")[-1][:-4] >= firstPackageDate]
 
     # Sorts by extracted date mostly for the typo noted above, but helps ensure packages are read in chronologically
     SDTMPackages.sort()
     SDTMChanges.sort()
 
-    # data = read_data(path)
-    # Codelists = data[data["Codelist Code"].isna()]
-    # Terms = data[data["Codelist Code"].notna()]
+    read_data(SDTMPackages[0][0], SDTMPackages[0][1])
