@@ -157,13 +157,49 @@ def read_data(date, filePath):
     connection.close()
 
 
-def read_changes(filePath):
-    # TODO: 1. Read in data
-    #       2. Determine severity of changes
-    #       3. Change data to code table if update only
-    #       4. Insert data into changelog table
-    pass
+def read_changes(date, filePath):
+    # TODO: Insert data into changelog table
+    connection = sql.connect('CDISC.db')
+    data = pd.read_csv(filePath, sep='\t')
 
+    # Add changes to table
+    for i, row in data.iterrows():
+        reqCode = row['Request Code']
+        changeType = row['Change Type']
+        code = row['NCI Code']
+        summary = row['Change Summary']
+        original = row['Original']
+        new = row['New']
+
+        # Older changelists do not have change instruction column so have 10 columns total
+        # If there are change instructions (11 columns), extract it
+        if len(data.columns) == 11:
+            instructions = row['Change Implementation Instructions']
+        # Otherwise set as None
+        else:
+            instructions = None
+
+        # Determine severity of change - This is subjective and may be changed as necessary
+        # Addition is moderate as it may not affect anything
+        if changeType == "Add":
+            severity = "Moderate"
+        # Removal is major as it may have big effects
+        elif changeType == "Remove":
+            severity = "Major"
+        # If update, look into what exactly changed
+        elif changeType == "Update":
+            if "Synonym" in summary:
+                severity = "Minor"
+            elif "Codelist Name" in summary:
+                severity = "Moderate"
+            elif "Definition" in summary or "Submission Value" in summary:
+                severity = "Major"
+            elif "NCI Preferred Term" in summary:
+                severity = "Moderate"
+        else:
+            severity = "Undetermined"
+
+        print(changeType, "\t", severity)
 
 # Debugging/Testing section
 if __name__ == "__main__":
@@ -204,4 +240,5 @@ if __name__ == "__main__":
     SDTMPackages.sort()
     SDTMChanges.sort()
 
-    read_data(SDTMPackages[0][0], SDTMPackages[0][1])
+    #read_data(SDTMPackages[0][0], SDTMPackages[0][1])
+    read_changes(SDTMChanges[0][0], SDTMChanges[0][1])
