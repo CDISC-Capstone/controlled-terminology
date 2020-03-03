@@ -202,7 +202,7 @@ def read_changes(date, filePath):
         else:
             severity = "Undetermined"
 
-        # If code is not in Code table, this will throw an error since it is a primary and foreign key in Changes
+        # If code is not in Code table, this will throw an error since it is a foreign key in Changes
         try:
             connection.execute('INSERT INTO Changes(Date, Code, Codelist, Term_Type, Request_Code, Change_Type, Severity, Change_Summary, Original, New, Change_Instructions)'
                                'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (date, code, codelistShort, termType, reqCode, changeType, severity, summary, original, new, instructions))
@@ -215,8 +215,7 @@ def read_changes(date, filePath):
                                    'WHERE Code = ?;', (date, date, code))
 
         # If a foreign key constraint has failed, add that code to Code table and then insert
-        except sql.IntegrityError as err:
-            print(err, code)
+        except sql.IntegrityError:
             # If it is a removed term, termType will be "Term"
             # If it is a removed codelist, termType will be "CDISC Codelist"
             connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
