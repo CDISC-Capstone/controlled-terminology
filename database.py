@@ -34,12 +34,14 @@ def create_tables():
               'Synonyms TEXT,'
               'Definition TEXT,'
               'NCI_Preferred_Term TEXT,'
-              'PRIMARY KEY (Codelist, Code)'
+              'PRIMARY KEY (Codelist, Code),'
               'FOREIGN KEY (Codelist) REFERENCES Codelist (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Changes('
               'Date TEXT,'
               'Code TEXT,'
+              'Codelist TEXT,'
+              'Term_Type TEXT,'
               'Request_Code TEXT,'
               'Change_Type TEXT,'
               'Severity TEXT,'
@@ -47,13 +49,15 @@ def create_tables():
               'Original TEXT,'
               'New TEXT,'
               'Change_Instructions TEXT,'
-              'PRIMARY KEY (Date, Code)'
+              'PRIMARY KEY (Date, Code, Codelist, Request_Code, Term_Type, Original, New),'
               'FOREIGN KEY (Code) REFERENCES Code (Code));')
+
+    conn.close()
 
 
 def read_data(date, filePath):
     connection = sql.connect('CDISC.db')
-    data = pd.read_csv(filePath, sep='\t')
+    data = pd.read_csv(filePath, sep='\t', engine='python')
 
     # Codelists have "Codelist Code" as NA as Code gives that code
     codelists = data[data['Codelist Code'].isna()]
@@ -73,14 +77,11 @@ def read_data(date, filePath):
         try:
             # Insert into Code table if not already in table
             connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
-                               'VALUES (?, ?, ?, ?, ?);', (code, "codelist", date, date, None))
-
-            # TODO: Check changelist to see if codelist has been depreciated (for older codelists added later)
+                               'VALUES (?, ?, ?, ?, ?);', (code, "CDISC Codelist", date, date, None))
 
             # Insert into Codelist table if not already in table
             connection.execute('INSERT INTO Codelist(Code, Extensible, Name, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
                                'VALUES (?, ?, ?, ?, ?, ?, ?);', (code, extensible, name, value, synonyms, definition, nci))
-            connection.commit()
         # If codelist is already in tables (throws error), update tables as necessary
         except sql.IntegrityError:
             # Get version date of what's in the database
@@ -105,7 +106,7 @@ def read_data(date, filePath):
                 connection.execute('UPDATE Codelist '
                                    'SET Extensible = ?, Name = ?, Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
                                    'WHERE Code = ?;', (extensible, name, value, synonyms, definition, nci, code))
-            connection.commit()
+        connection.commit()
 
     # Insert terms into database
     for i, row in terms.iterrows():
@@ -120,14 +121,11 @@ def read_data(date, filePath):
         try:
             # Insert into Code table if not already in table
             connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
-                               'VALUES (?, ?, ?, ?, ?);', (code, "term", date, date, None))
-
-            # TODO: Check changelist to see if term has been depreciated (for older terms added later)
+                               'VALUES (?, ?, ?, ?, ?);', (code, "Term", date, date, None))
 
             # Insert into Term table if not already in table
             connection.execute('INSERT INTO Term(Codelist, Code, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
                                'VALUES (?, ?, ?, ?, ?, ?);', (codelistCode, code, value, synonyms, definition, nci))
-            connection.commit()
         # If term is already in tables (throws error), update tables as necessary
         except sql.IntegrityError:
             # Get version date of what's in the database
@@ -151,20 +149,25 @@ def read_data(date, filePath):
                 # Update term values with current version, even if nothing has changed
                 connection.execute('UPDATE Term '
                                    'SET Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
-                                   'WHERE Codelist = ? AND Code = ?;', ( value, synonyms, definition, nci, codelistCode, code))
-            connection.commit()
+                                   'WHERE Codelist = ? AND Code = ?;', (value, synonyms, definition, nci, codelistCode, code))
+        connection.commit()
 
     connection.close()
 
 
 def read_changes(date, filePath):
-    # TODO: Insert data into changelog table
     connection = sql.connect('CDISC.db')
-    data = pd.read_csv(filePath, sep='\t')
+    data = pd.read_csv(filePath, sep='\t', engine='python')
+
+    # Explicitly enforce foreign key constraint as this is FALSE by default
+    # This is for terms that may be removed with the first changelist and so do not exist in Code table
+    connection.execute('PRAGMA foreign_keys = TRUE;')
 
     # Add changes to table
     for i, row in data.iterrows():
         reqCode = row['Request Code']
+        termType = row['CDISC Term Type']
+        codelistShort = row['CDISC Codelist (Short Name)']
         changeType = row['Change Type']
         code = row['NCI Code']
         summary = row['Change Summary']
@@ -199,10 +202,38 @@ def read_changes(date, filePath):
         else:
             severity = "Undetermined"
 
-        print(changeType, "\t", severity)
+        # If code is not in Code table, this will throw an error since it is a primary and foreign key in Changes
+        try:
+            connection.execute('INSERT INTO Changes(Date, Code, Codelist, Term_Type, Request_Code, Change_Type, Severity, Change_Summary, Original, New, Change_Instructions)'
+                               'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (date, code, codelistShort, termType, reqCode, changeType, severity, summary, original, new, instructions))
 
-# Debugging/Testing section
-if __name__ == "__main__":
+            # If a term has been removed, note that in Code
+            if changeType == "Remove":
+                connection.execute('UPDATE Code '
+                                   'SET Current_Version = ?,'
+                                   '    Deprecation_Date = ? '
+                                   'WHERE Code = ?;', (date, date, code))
+
+        # If a foreign key constraint has failed, add that code to Code table and then insert
+        except sql.IntegrityError as err:
+            print(err, code)
+            # If it is a removed term, termType will be "Term"
+            # If it is a removed codelist, termType will be "CDISC Codelist"
+            connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
+                               'VALUES(?, ?, ?, ?, ?);', (code, termType, date, date, date))
+
+            connection.execute('INSERT INTO Changes(Date, Code, Codelist, Term_Type, Request_Code, Change_Type, Severity, Change_Summary, Original, New, Change_Instructions)'
+                               'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (date, code, codelistShort, termType, reqCode, changeType, severity, summary, original, new, instructions))
+        connection.commit()
+
+    connection.close()
+
+
+# Loads the initial data for the capstone project (2014 Q3 - ~2019Q4 on assignment)
+# Because of how it is coded, it will look for every package up to present
+# It will take a long time, especially as more packages are added as it has at least O(n) complexity,
+# n being the number of terms, codelists, and changes for every package combined
+def initial_load():
     # Reference variables
     firstPackageDate = "2014-10-06"
     archiveLink = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"
@@ -240,5 +271,17 @@ if __name__ == "__main__":
     SDTMPackages.sort()
     SDTMChanges.sort()
 
-    #read_data(SDTMPackages[0][0], SDTMPackages[0][1])
-    read_changes(SDTMChanges[0][0], SDTMChanges[0][1])
+    for i in SDTMPackages:
+        read_data(i[0], i[1])
+        print(i[0], "package loaded")
+    print("Packages loaded")
+
+    for i in SDTMChanges:
+        read_changes(i[0], i[1])
+        print(i[0], "changes loaded")
+    print("Changelists loaded")
+
+
+# Debugging/Testing section
+if __name__ == "__main__":
+    pass
