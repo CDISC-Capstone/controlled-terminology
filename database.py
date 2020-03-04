@@ -228,15 +228,9 @@ def read_changes(date, filePath):
     connection.close()
 
 
-# Loads the initial data for the capstone project (2014 Q3 - ~2019Q4 on assignment)
-# Because of how it is coded, it will look for every package up to present
-# It will take a long time, especially as more packages are added as it has at least O(n) complexity,
-# n being the number of terms, codelists, and changes for every package combined
-def initial_load():
-    # Reference variables
-    firstPackageDate = "2014-10-06"
-    archiveLink = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"
-
+# This function gets all packages from a CDISC archive link
+# The default archive link is for the SDTM archive
+def get_packages(firstPackageDate, archiveLink="https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"):
     # Extracts archive HTML for BeautifulSoup
     archiveHTML = requests.get(archiveLink).text
     soup = BeautifulSoup(archiveHTML, 'html.parser')
@@ -270,6 +264,20 @@ def initial_load():
     SDTMPackages.sort()
     SDTMChanges.sort()
 
+    return SDTMPackages, SDTMChanges
+
+
+# Loads the initial data for the capstone project (2014 Q3 - ~2019Q4 on assignment)
+# Because of how it is coded, it will look for every package up to present
+# It will take a long time, especially as more packages are added as it has at least O(n) complexity,
+# n being the number of terms, codelists, and changes for every package combined
+def initial_load():
+    # Reference variables
+    firstPackageDate = "2014-10-06"
+    archiveLink = "https://evs.nci.nih.gov/ftp1/CDISC/SDTM/Archive/"
+
+    SDTMPackages, SDTMChanges = get_packages(firstPackageDate, archiveLink)
+
     for i in SDTMPackages:
         read_data(i[0], i[1])
         print(i[0], "package loaded")
@@ -279,6 +287,50 @@ def initial_load():
         read_changes(i[0], i[1])
         print(i[0], "changes loaded")
     print("Changelists loaded")
+
+
+# Automatically updates the database with all recent packages/changelogs not in the database
+# Assumes that there is at least one package in the database
+def update_database():
+    connection = sql.connect('CDISC.db')
+
+    # Get the latest version date in the database
+    latestVersion = connection.execute('SELECT Current_Version '
+                                       'FROM Code '
+                                       'ORDER BY Current_Version DESC '
+                                       'LIMIT 1;').fetchall()[0][0]
+
+    packages, changes = get_packages(latestVersion)
+
+    # Remove first element as that is already in the database
+    packages = packages[1:]
+    changes = changes[1:]
+
+    # If there are new packages, read into database
+    if len(packages) > 0:
+        for i in packages:
+            read_data(i[0], i[1])
+            print(i[0], "package loaded")
+        print("Packages updated")
+
+        for i in changes:
+            read_changes(i[0], i[1])
+            print(i[0], "changes loaded")
+        print("Changelists updated")
+    # Otherwise, nothing to upload
+    else:
+        print("Database is up to date")
+
+
+# Use this function to manually upload packages and changelogs from the same release
+# This is meant for older packages after they have been cleaned since newer ones can be updated automatically,
+# but newer packages should be able to be uploaded here too
+# package and changelog are file paths to a tab delimited .txt file containing the required columns format and names
+def manual_load_data(date, package, changelog):
+    read_data(date, package)
+    print(date, "package uploaded")
+    read_changes(date, changelog)
+    print(date, "changelog uploaded")
 
 
 # Debugging/Testing section
