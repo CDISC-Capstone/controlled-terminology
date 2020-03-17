@@ -12,6 +12,7 @@ def create_tables():
     c.execute('CREATE TABLE IF NOT EXISTS Code('
               'Code TEXT,'
               'Term_Type TEXT,'
+              'Format TEXT,'
               'Creation_Date TEXT,'
               'Current_Version TEXT,'
               'Deprecation_Date TEXT,'
