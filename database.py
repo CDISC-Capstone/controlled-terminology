@@ -25,7 +25,8 @@ def create_tables():
               'Synonyms TEXT,'
               'Definition TEXT,'
               'NCI_Preferred_Term TEXT,'
-              'PRIMARY KEY (Code));')
+              'PRIMARY KEY (Code),'
+              'FOREIGN KEY (Code) REFERENCES Code (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Term('
               'Codelist TEXT,'
@@ -35,6 +36,7 @@ def create_tables():
               'Definition TEXT,'
               'NCI_Preferred_Term TEXT,'
               'PRIMARY KEY (Codelist, Code),'
+              'FOREIGN KEY (Code) REFERENCES Code (Code),'
               'FOREIGN KEY (Codelist) REFERENCES Codelist (Code));')
 
     c.execute('CREATE TABLE IF NOT EXISTS Changes('
