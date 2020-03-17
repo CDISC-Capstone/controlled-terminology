@@ -329,10 +329,10 @@ def update_database(standard):
 # This is meant for older packages after they have been cleaned since newer ones can be updated automatically,
 # but newer packages should be able to be uploaded here too
 # package and changelog are file paths to a tab delimited .txt file containing the required columns format and names
-def manual_load_data(date, package, changelog):
-    read_data(date, package)
+def manual_load_data(date, package, changelog, standard):
+    read_data(date, package, standard)
     print(date, "package uploaded")
-    read_changes(date, changelog)
+    read_changes(date, changelog, standard)
     print(date, "changelog uploaded")
 
 
