@@ -58,6 +58,7 @@ def create_tables():
     conn.close()
 
 
+# Adds the codelists/terms into the database
 def read_data(date, filePath, standard):
     connection = sql.connect('CDISC.db')
     data = pd.read_csv(filePath, sep='\t', engine='python')
@@ -158,6 +159,7 @@ def read_data(date, filePath, standard):
     connection.close()
 
 
+# Adds the changes into the database
 def read_changes(date, filePath):
     connection = sql.connect('CDISC.db')
     data = pd.read_csv(filePath, sep='\t', engine='python')
@@ -231,7 +233,7 @@ def read_changes(date, filePath):
     connection.close()
 
 
-# This function gets all packages for a given standard
+# This function gets all package and changelist urls for a given standard
 def get_packages(firstPackageDate, standard):
     # Determine archive link based on standard
     if (standard == "SDTM") or (standard == "CDASH"):
