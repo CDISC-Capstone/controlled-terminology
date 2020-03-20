@@ -334,7 +334,7 @@ def update_database(standard):
 def manual_load_data(date, package, changelog, standard):
     read_data(date, package, standard)
     print(date, "package uploaded")
-    read_changes(date, changelog, standard)
+    read_changes(date, changelog)
     print(date, "changelog uploaded")
 
 
