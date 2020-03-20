@@ -1,7 +1,12 @@
-p {
-    color: blue;
-}
+body {
+    margin: 0;
+    padding: 0;
+    }
 
 #paragraph {
     color: green;
+}
+
+.courses_message_div {
+	padding: 15px 0 15px;
 }
