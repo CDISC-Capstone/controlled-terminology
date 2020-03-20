@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import re
 
 
+# Creates tables in the database
 def create_tables():
     conn = sql.connect('CDISC.db')
     c = conn.cursor()
