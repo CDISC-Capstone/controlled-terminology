@@ -13,5 +13,31 @@ def get_basic_data():
     return codes, terms
 
 
+def get_codelist_changes(code, startDate, endDate):
+    conn = sql.connect("CDISC.db")
+
+    current = conn.execute('SELECT * FROM Codelist '
+                           'WHERE Code = ?;', (code,)).fetchall()
+
+    changes = conn.execute('SELECT * FROM Changes '
+                           'WHERE Code = ? AND DATE >= ? AND DATE <= ?;', (code, startDate, endDate)).fetchall()
+
+    conn.close()
+    return current, changes
+
+
+def get_term_changes(code, startDate, endDate):
+    conn = sql.connect("CDISC.db")
+
+    current = conn.execute('SELECT * FROM Term '
+                           'WHERE Code = ?;', (code,)).fetchall()
+
+    changes = conn.execute('SELECT * FROM Changes '
+                           'WHERE Code = ? AND AND DATE >= ? AND DATE <= ?;', (code, startDate, endDate)).fetchall()
+
+    conn.close()
+    return current, changes
+
+
 if __name__ == "__main__":
-    c, t = get_basic_data()
+    pass
