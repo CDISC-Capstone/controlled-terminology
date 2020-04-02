@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="../static/css/homepage.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.js"></script>
     <title>Homepage</title>
 </head>
 
 <body>
-    <div class="courses_message_div">
-        <table>
-            <tr>
-                <th> Packages </th>
-                <th> Changes </th>
-            </tr>
+    <div class="ui form">
+        <div class="two fields">
+            <div class="field">
+                <label>Start date</label>
+                <div class="ui calendar" id="rangestart">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                            <input type="text" placeholder="Start">
+                    </div>
+                </div>
+            </div>
 
-        {% for changes in range(SDTMChanges | length) %}
-            <tr>
-                <td> <h1> <b> {{ SDTMChanges[changes] }}</b> </h1> </td>
-            </tr>
-
-            <tr>
-                <td> <h1> <b> {{ SDTMChanges[changes] }}</b> </h1> </td>
-            </tr>
-        {% endfor %}
-        </table>
+            <div class="field">
+                <label>End date</label>
+                <div class="ui calendar" id="rangeend">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" placeholder="End">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <script src="../static/javascript/homepage.js"></script>
+    </footer>
 </body>
 
 </html>
