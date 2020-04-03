@@ -39,7 +39,7 @@ def get_term_changes(code, startDate, endDate):
                            'WHERE Code = ?;', (code,)).fetchall()
 
     changes = conn.execute('SELECT * FROM Changes '
-                           'WHERE Code = ? AND AND DATE >= ? AND DATE <= ?;', (code, startDate, endDate)).fetchall()
+                           'WHERE Code = ? AND DATE >= ? AND DATE <= ?;', (code, startDate, endDate)).fetchall()
 
     conn.close()
     return activeDates, current, changes
