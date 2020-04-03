@@ -1,4 +1,51 @@
 body {
     margin: 0;
     padding: 0;
-    }
+}
+
+#top {
+    height: 30px;
+}
+
+#form, #fields {
+    align-items: center;
+    text-align: center;
+}
+
+#left_field, #right_field {
+    width: 500px;
+}
+
+.js-example-basic-single {
+    width: 300px;
+    align-items: center;
+    text-align: center;
+}
+
+#code_dropdown {
+    padding: 20px;
+    align-items: center;
+    text-align: center;
+}
+
+#submit {
+	background: rgba(133, 133, 133, 0.66);
+	color: white;
+	font-family: 'Ubuntu', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana';
+    font-size: 15px;
+	width: 95px;
+	height: 40px;
+	border: none;
+
+
+
+    text-align: center;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+#submit:hover {
+	background-color: rgba(216, 216, 216, 0.96);
+	color: #6975ff;
+	transition: 0.7s;
+}

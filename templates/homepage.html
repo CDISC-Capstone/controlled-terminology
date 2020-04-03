@@ -5,20 +5,24 @@
     <link rel="stylesheet" type="text/css" href="../static/css/homepage.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
     <script src="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.js"></script>
     <title>Homepage</title>
 </head>
 
 <body>
-    <div class="ui form">
-        <div class="two fields">
+    <div id="top"> </div>
+
+    <form action="" method="post">
+    <div class="ui form" id="form">
+        <div class="two fields" id="fields">
             <div class="field">
                 <label>Start date</label>
                 <div class="ui calendar" id="rangestart">
-                    <div class="ui input left icon">
+                    <div class="ui input left icon" id="left_field">
                         <i class="calendar icon"></i>
-                            <input type="text" placeholder="Start">
+                        <input type="text" placeholder="Start" name="start_date" value="{{ request.form.start_date }}">
                     </div>
                 </div>
             </div>
@@ -26,17 +30,44 @@
             <div class="field">
                 <label>End date</label>
                 <div class="ui calendar" id="rangeend">
-                    <div class="ui input left icon">
+                    <div class="ui input left icon" id="right_field">
                         <i class="calendar icon"></i>
-                        <input type="text" placeholder="End">
+                        <input type="text" placeholder="End" name="end_date" value="{{ request.form.end_date }}">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="code_dropdown">
+        <label for="cars"><b>Choose a code:</b></label>
+        <div>
+            <select class="js-example-basic-single" name= "codes" value= "{{ request.form.codes }}">
+                {% for codes in list_of_codes %}
+                    <option type="text" name="codes" > {{codes}} </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div id="code_dropdown">
+        <label for="cars"><b>Choose a term:</b></label>
+        <div>
+            <select class="js-example-basic-single" name= "terms" value= "{{ request.form.terms }}">
+                {% for terms in list_of_terms %}
+                    <option type="text" name="terms" > {{terms}} </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <input id="submit" type="submit" value="Submit" style="display: block; margin: 0 auto;">
+    </form>
+
+
     <footer>
         <script src="../static/javascript/homepage.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     </footer>
 </body>
 
