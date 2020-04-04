@@ -1,16 +1,24 @@
 import sqlite3 as sql
 
 
-def get_basic_data():
+def get_codelist_data():
     conn = sql.connect("CDISC.db")
 
     codelists = conn.execute('SELECT c.Code, c.Term_Type, c.Standard, cl.Submission_Value, cl.Name '
                              'FROM Code c INNER JOIN Codelist cl ON c.Code = cl.Code;').fetchall()
+    conn.close()
+    return codelists
+
+
+def get_term_data(codelist):
+    conn = sql.connect("CDISC.db")
 
     terms = conn.execute('SELECT c.Code, c.Term_Type, c.Standard, t.Submission_Value '
-                         'FROM Code c INNER JOIN Term t ON c.Code = t.Code;').fetchall()
+                         'FROM Code c INNER JOIN Term t ON c.Code = t.Code '
+                         'WHERE t.Codelist = ?;', (codelist,)).fetchall()
+
     conn.close()
-    return codelists, terms
+    return terms
 
 
 def get_codelist_changes(code, startDate, endDate):
