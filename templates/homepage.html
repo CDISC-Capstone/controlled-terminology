@@ -43,23 +43,25 @@
         <label for="cars"><b>Choose a codelist:</b></label>
         <div>
             <select class="js-example-basic-single" name= "codelist" value= "{{ request.form.codelist }}">
-                {% for codelist in list_of_codes %}
-                    <option type="text" name="codelist" > {{codelist}} </option>
+                {% for codelist, name in list_of_codes %}
+                    <option type="text" name="codelist" > {{codelist}} - {{name}}</option>
                 {% endfor %}
             </select>
         </div>
     </div>
 
+    {% if terms == 1 %}
     <div id="code_dropdown">
         <label for="cars"><b>Choose a term:</b></label>
         <div>
             <select class="js-example-basic-single" name= "terms" value= "{{ request.form.terms }}">
-                {% for terms in list_of_terms %}
-                    <option type="text" name="terms" > {{terms}} </option>
+                {% for term, name in list_of_terms %}
+                    <option type="text" name="terms" > {{term}} - {{ name }} </option>
                 {% endfor %}
             </select>
         </div>
     </div>
+    {% endif %}
 
     <input id="submit" type="submit" value="Submit" style="display: block; margin: 0 auto;">
     </form>

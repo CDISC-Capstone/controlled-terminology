@@ -4,9 +4,9 @@ from datetime import datetime
 import time
 import sqlite3 as sql
 import urllib
-from bokeh.plotting import figure, output_file, show
-from bokeh.resources import CDN
-from bokeh.embed import file_html
+#from bokeh.plotting import figure, output_file, show
+#from bokeh.resources import CDN
+#from bokeh.embed import file_html
 import requests
 import sys
 
@@ -16,47 +16,54 @@ host = 'http://127.0.0.1:5000/'
 @app.route('/', methods=['GET', 'POST'])
 def home():
     '''
-    codes: [(Code, Term Type, Standard, Submission Value, Name)]
+    codelists: [(Code, Term Type, Standard, Submission Value, Name)]
     terms: [(Code, Term Type, Standard, Submission Value)]
     '''
-    codelists, terms = query.get_basic_data()
-    list_of_codes = [code[0] for code in codelists]
-    list_of_terms = [term[0] for term in terms]
+    codelists = query.get_codelist_data()
+    list_of_codes = [(c[0], c[4]) for c in codelists]
 
     if request.method == 'POST':
-        codelist = request.form['codelist']
-        term = request.form['terms']
-        startDate = request.form['start_date']
-        startDate = datetime.strptime(startDate, '%B %d, %Y').strftime('%Y-%d-%m')
-        endDate = request.form['end_date']
-        endDate = datetime.strptime(endDate, '%B %d, %Y').strftime('%Y-%d-%m')
+        codelist = request.form['codelist'].split()[0]
 
-        '''
-        CL_activeDates: [Creation Date, Deprecation Date]
-        CL_current: [Code, Extensible?, Name, Submission Value, Synonyms, Definition, NCI Preferred Term]
-        CL_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
-                    Change Instructions]
-        '''
-        CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
+        # See if a term selected (if not, show them)
+        termSubmitted = request.form.get('terms')
+        if termSubmitted is None:
+            terms = query.get_term_data(codelist)
+            list_of_terms = [(t[0], t[3]) for t in terms]
+            return render_template('homepage.html', url=host, list_of_codes=list_of_codes, terms=1, list_of_terms=list_of_terms)
+        else:
+            term = request.form['terms'].split()[0]
+            startDate = request.form['start_date']
+            startDate = datetime.strptime(startDate, '%B %d, %Y').strftime('%Y-%d-%m')
+            endDate = request.form['end_date']
+            endDate = datetime.strptime(endDate, '%B %d, %Y').strftime('%Y-%d-%m')
 
-        '''
-        term_activeDates: [Creation Date, Deprecation Date]
-        term_current: [Codelist, Code, Submission Value, Synonyms, Definition, NCI Preferred Term]
-        term_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
-                    Change Instructions]
-        '''
-        term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
+            '''
+            CL_activeDates: [Creation Date, Deprecation Date]
+            CL_current: [Code, Extensible?, Name, Submission Value, Synonyms, Definition, NCI Preferred Term]
+            CL_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
+                        Change Instructions]
+            '''
+            CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
 
-        print(codelist, term)
-        print(CL_activeDates)
-        print(CL_current)
-        print(CL_changes)
+            '''
+            term_activeDates: [Creation Date, Deprecation Date]
+            term_current: [Codelist, Code, Submission Value, Synonyms, Definition, NCI Preferred Term]
+            term_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
+                        Change Instructions]
+            '''
+            term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
 
-        print(term_activeDates)
-        print(term_current)
-        print(term_changes)
+            print(codelist, term)
+            print(CL_activeDates)
+            print(CL_current)
+            print(CL_changes)
 
-    return render_template('homepage.html', url=host, list_of_codes=list_of_codes, list_of_terms=list_of_terms)
+            print(term_activeDates)
+            print(term_current)
+            print(term_changes)
+
+    return render_template('homepage.html', url=host, list_of_codes=list_of_codes, terms=0)
 
 
 if __name__ == '__main__':
