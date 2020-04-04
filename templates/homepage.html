@@ -40,11 +40,11 @@
     </div>
 
     <div id="code_dropdown">
-        <label for="cars"><b>Choose a code:</b></label>
+        <label for="cars"><b>Choose a codelist:</b></label>
         <div>
-            <select class="js-example-basic-single" name= "codes" value= "{{ request.form.codes }}">
-                {% for codes in list_of_codes %}
-                    <option type="text" name="codes" > {{codes}} </option>
+            <select class="js-example-basic-single" name= "codelist" value= "{{ request.form.codelist }}">
+                {% for codelist in list_of_codes %}
+                    <option type="text" name="codelist" > {{codelist}} </option>
                 {% endfor %}
             </select>
         </div>

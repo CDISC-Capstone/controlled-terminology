@@ -19,12 +19,12 @@ def home():
     codes: [(Code, Term Type, Standard, Submission Value, Name)]
     terms: [(Code, Term Type, Standard, Submission Value)]
     '''
-    codes, terms = query.get_basic_data()
-    list_of_codes = [code[0] for code in codes]
+    codelists, terms = query.get_basic_data()
+    list_of_codes = [code[0] for code in codelists]
     list_of_terms = [term[0] for term in terms]
 
     if request.method == 'POST':
-        code = request.form['codes']
+        codelist = request.form['codelist']
         term = request.form['terms']
         startDate = request.form['start_date']
         startDate = datetime.strptime(startDate, '%B %d, %Y').strftime('%Y-%d-%m')
@@ -37,7 +37,7 @@ def home():
         CL_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
                     Change Instructions]
         '''
-        CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(code, startDate, endDate)
+        CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
 
         '''
         term_activeDates: [Creation Date, Deprecation Date]
@@ -47,7 +47,7 @@ def home():
         '''
         term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
 
-        print(code, term)
+        print(codelist, term)
         print(CL_activeDates)
         print(CL_current)
         print(CL_changes)
@@ -56,12 +56,7 @@ def home():
         print(term_current)
         print(term_changes)
 
-    #print(codes)
-    #print(terms)
-    #print(list_of_codes)
-
     return render_template('homepage.html', url=host, list_of_codes=list_of_codes, list_of_terms=list_of_terms)
-
 
 
 if __name__ == '__main__':
