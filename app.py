@@ -1,14 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request
 import query
 from datetime import datetime
-import time
-import sqlite3 as sql
-import urllib
-#from bokeh.plotting import figure, output_file, show
-#from bokeh.resources import CDN
-#from bokeh.embed import file_html
-import requests
-import sys
+import json
 
 app = Flask(__name__)
 host = 'http://127.0.0.1:5000/'
@@ -22,53 +15,68 @@ def home():
     codelists = query.get_codelist_data()
     list_of_codes = [(c[0], c[4]) for c in codelists]
 
-    if request.method == 'POST':
-        codelist = request.form['codelist'].split()[0]
-
-        # See if a term selected (if not, show them)
-        termSubmitted = request.form.get('terms')
-        if termSubmitted is None:
-            terms = query.get_term_data(codelist)
-            list_of_terms = [(t[0], t[3]) for t in terms]
-            return render_template('homepage.html', url=host, list_of_codes=list_of_codes, list_of_terms=list_of_terms)
-        # If term is selected, query changes for date range
+    codelist_terms_query = query.get_codelist_term()
+    codelist_terms = {}
+    for code in codelist_terms_query:
+        if code[0] not in codelist_terms:
+            codelist_terms[code[0]] = [code[2]]
         else:
-            term = request.form['terms'].split()[0]
-            startDate = request.form['start_date']
-            endDate = request.form['end_date']
+            codelist_terms[code[0]] += [code[2]]
 
-            # Ensure both dates are selected
-            if startDate != '' and endDate != '':
-                startDate = datetime.strptime(startDate, '%B %d, %Y').strftime('%Y-%d-%m')
-                endDate = datetime.strptime(endDate, '%B %d, %Y').strftime('%Y-%d-%m')
+    submitted = False
 
-                '''
-                CL_activeDates: [Creation Date, Deprecation Date]
-                CL_current: [Code, Extensible?, Name, Submission Value, Synonyms, Definition, NCI Preferred Term]
-                CL_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
-                            Change Instructions]
-                '''
-                CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
+    if request.method == 'POST':
+        submitted = True
+        codelist = request.form['codelist'].split()[0]
+        term = request.form['terms']
+        startDate = request.form['start_date']
+        endDate = request.form['end_date']
 
-                '''
-                term_activeDates: [Creation Date, Deprecation Date]
-                term_current: [Codelist, Code, Submission Value, Synonyms, Definition, NCI Preferred Term]
-                term_changes: [Date, Code, Codelist, Term Type, Request Code, Change Type, Severity, Change Summary, Original, New,
-                            Change Instructions]
-                '''
-                term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
+        startDate = datetime.strptime(startDate, '%B %d, %Y').strftime('%Y-%d-%m')
+        endDate = datetime.strptime(endDate, '%B %d, %Y').strftime('%Y-%d-%m')
 
-                print(codelist, term)
-                print(CL_activeDates)
-                print(CL_current)
-                print(CL_changes)
+        CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
+        CL_nodes = [{'id': 0, 'label': 'Start'}]
+        for element in range(len(CL_changes)):
+            CL_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                          'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
+                           + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8] + '<br>'
+                           + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
 
-                print(term_activeDates)
-                print(term_current)
-                print(term_changes)
+        CL_edges = []
+        for element in range(len(CL_changes)):
+            CL_edges.append({'from': element, 'to': element + 1, 'arrows': 'to',
+                          'title': '<b>' + 'Change Type: ' + '</b>' + CL_changes[element][5] + '<br>'
+                           + '<b>' + 'Summary: ' + '</b>' + CL_changes[element][7] + '<br>'
+                           + '<b>' + 'Severity: ' + '</b>' + CL_changes[element][6]})
 
-    return render_template('homepage.html', url=host, list_of_codes=list_of_codes)
+
+        term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
+        term_nodes = [{'id': 0, 'label': 'Start'}]
+        for element in range(len(term_changes)):
+            term_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                             'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b></u>' + '<br>'
+                                      + '<b>' + 'Original: ' + '</b>' + term_changes[element][8] + '<br>'
+                                      + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
+
+        term_edges = []
+        for element in range(len(term_changes)):
+            term_edges.append({'from': element, 'to': element + 1, 'arrows': 'to',
+                             'title': '<b>' + 'Change Type: ' + '</b>' + term_changes[element][5] + '<br>'
+                                      + '<b>' + 'Summary: ' + '</b>' + term_changes[element][7] + '<br>'
+                                      + '<b>' + 'Severity: ' + '</b>' + term_changes[element][6]})
+        print(CL_edges)
+        print(term_edges)
+        return render_template('homepage.html', url=host, codelist=codelist, term=term, list_of_codes=list_of_codes,
+                               codelist_terms=codelist_terms, submitted=submitted, CL_activeDates=CL_activeDates,
+                               CL_current=CL_current, term_activeDates=term_activeDates, term_current=term_current,
+                               CL_nodes=json.dumps(CL_nodes), CL_edges=json.dumps(CL_edges),
+                               term_nodes=json.dumps(term_nodes), term_edges=json.dumps(term_edges))
+
+    return render_template('homepage.html', url=host, list_of_codes=list_of_codes, submitted=submitted,
+                           codelist_terms=codelist_terms)
 
 
 if __name__ == '__main__':
     app.run()
+    # Test Case: Codelist: C101817; Term: C102067

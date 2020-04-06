@@ -22,7 +22,7 @@ body {
     text-align: center;
 }
 
-#code_dropdown {
+#code_dropdown, #term_dropdown {
     padding: 20px;
     align-items: center;
     text-align: center;
@@ -36,9 +36,6 @@ body {
 	width: 95px;
 	height: 40px;
 	border: none;
-
-
-
     text-align: center;
 	border-radius: 4px;
 	cursor: pointer;
@@ -48,4 +45,58 @@ body {
 	background-color: rgba(216, 216, 216, 0.96);
 	color: #6975ff;
 	transition: 0.7s;
+}
+
+#code_visual {
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+}
+
+#code_changes {
+    height: 350px;
+    width: 50%;
+    padding: 10px;
+    border: 1px solid blue;
+    background-color: #eeeeee;
+    float: left;
+}
+
+#code_info {
+    width: 50%;
+    height: 350px;
+    padding: 10px;
+    border: 1px solid blue;
+    background-color: #eeeeee;
+    text-align: left;
+    float: right;
+}
+
+#term_visual {
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+}
+
+#term_changes {
+    height: 350px;
+    width: 50%;
+    padding: 10px;
+    border: 1px solid blue;
+    background-color: #eeeeee;
+    float: left;
+}
+
+#term_info {
+    width: 50%;
+    height: 350px;
+    padding: 10px;
+    border: 1px solid #0301ff;
+    background-color: #eeeeee;
+    text-align: left;
+    float: right;
+}
+
+#visuals{
+    position: relative;
 }
