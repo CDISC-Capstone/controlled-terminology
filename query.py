@@ -16,10 +16,16 @@ def get_term_data(codelist):
     terms = conn.execute('SELECT c.Code, c.Term_Type, c.Standard, t.Submission_Value '
                          'FROM Code c INNER JOIN Term t ON c.Code = t.Code '
                          'WHERE t.Codelist = ?;', (codelist,)).fetchall()
-
     conn.close()
     return terms
 
+def get_codelist_term():
+    conn = sql.connect("CDISC.db")
+
+    codelist_terms = conn.execute('SELECT cl.Code, cl.Name, t.Code, t.Submission_Value '
+                                  'FROM Codelist cl INNER JOIN Term t ON cl.Code = t.Codelist;').fetchall()
+    conn.close()
+    return codelist_terms
 
 def get_codelist_changes(code, startDate, endDate):
     conn = sql.connect("CDISC.db")
