@@ -38,10 +38,31 @@ def home():
         CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
         CL_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(CL_changes)):
-            CL_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
-                          'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
-                           + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8] + '<br>'
-                           + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+            if len(CL_changes[element][8]) > 70:
+                splitted_sentence = CL_changes[element][8].split(" ")
+                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
+                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
+                first, last = " ".join(first), " ".join(last)
+                CL_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                                 'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
+                                  + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last + '<br>'
+                                  + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+
+            elif len(CL_changes[element][9]) > 70:
+                splitted_sentence = CL_changes[element][9].split(" ")
+                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
+                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
+                first, last = " ".join(first), " ".join(last)
+                CL_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                                   'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
+                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8]
+                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first + '<br>' + last})
+
+            else:
+                CL_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                              'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
+                               + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8] + '<br>'
+                               + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
 
         CL_edges = []
         for element in range(len(CL_changes)):
@@ -54,10 +75,31 @@ def home():
         term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
         term_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(term_changes)):
-            term_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
-                             'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b></u>' + '<br>'
-                                      + '<b>' + 'Original: ' + '</b>' + term_changes[element][8] + '<br>'
-                                      + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
+            if len(term_changes[element][8]) > 70:
+                splitted_sentence = term_changes[element][8].split(" ")
+                first = splitted_sentence[0:int(len(splitted_sentence)/2)]
+                last = splitted_sentence[int(len(splitted_sentence)/2): len(splitted_sentence)]
+                first, last = " ".join(first), " ".join(last)
+                term_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                                   'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
+                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last
+                                    + '<br>' + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
+
+            elif len(term_changes[element][9]) > 70:
+                splitted_sentence = term_changes[element][9].split(" ")
+                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
+                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
+                first, last = " ".join(first), " ".join(last)
+                term_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                                   'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
+                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + term_changes[element][8]
+                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first + '<br>' + last})
+
+            else:
+                term_nodes.append({'id': element + 1, 'label': 'Stage ' + str(element + 1),
+                                 'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b></u>' + '<br>'
+                                  + '<b>' + 'Original: ' + '</b>' + term_changes[element][8] + '<br>'
+                                  + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
 
         term_edges = []
         for element in range(len(term_changes)):
@@ -65,8 +107,7 @@ def home():
                              'title': '<b>' + 'Change Type: ' + '</b>' + term_changes[element][5] + '<br>'
                                       + '<b>' + 'Summary: ' + '</b>' + term_changes[element][7] + '<br>'
                                       + '<b>' + 'Severity: ' + '</b>' + term_changes[element][6]})
-        print(CL_edges)
-        print(term_edges)
+
         return render_template('homepage.html', url=host, codelist=codelist, term=term, list_of_codes=list_of_codes,
                                codelist_terms=codelist_terms, submitted=submitted, CL_activeDates=CL_activeDates,
                                CL_current=CL_current, term_activeDates=term_activeDates, term_current=term_current,
