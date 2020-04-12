@@ -57,7 +57,7 @@ body {
     height: 450px;
     width: 50%;
     padding: 10px;
-    border: 1px solid blue;
+    border: 1px solid #72cdff;
     background-color: #eeeeee;
     float: left;
 }
@@ -66,7 +66,7 @@ body {
     width: 50%;
     height: 450px;
     padding: 10px;
-    border: 1px solid blue;
+    border: 1px solid #72cdff;
     background-color: #eeeeee;
     text-align: left;
     float: right;
@@ -82,7 +82,7 @@ body {
     height: 450px;
     width: 50%;
     padding: 10px;
-    border: 1px solid blue;
+    border: 1px solid #72cdff;
     background-color: #eeeeee;
     float: left;
 }
@@ -91,7 +91,7 @@ body {
     width: 50%;
     height: 450px;
     padding: 10px;
-    border: 1px solid #0301ff;
+    border: 1px solid #72cdff;
     background-color: #eeeeee;
     text-align: left;
     float: right;
@@ -99,4 +99,8 @@ body {
 
 #visuals{
     position: relative;
+}
+
+.info_text {
+    font-size: 16px;
 }

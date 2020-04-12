@@ -19,16 +19,15 @@ def home():
     codelist_terms = {}
     for code in codelist_terms_query:
         if code[0] not in codelist_terms:
-            codelist_terms[code[0]] = [code[2]]
+            codelist_terms[code[0]] = [code[2] + " - " + code[3]]
         else:
-            codelist_terms[code[0]] += [code[2]]
-
+            codelist_terms[code[0]] += [code[2] + " - " + code[3]]
     submitted = False
-
+    print(codelist_terms)
     if request.method == 'POST':
         submitted = True
         codelist = request.form['codelist'].split()[0]
-        term = request.form['terms']
+        term = request.form['terms'].split(" ")[0]
         startDate = request.form['start_date']
         endDate = request.form['end_date']
 
@@ -70,7 +69,6 @@ def home():
                           'title': '<b>' + 'Change Type: ' + '</b>' + CL_changes[element][5] + '<br>'
                            + '<b>' + 'Summary: ' + '</b>' + CL_changes[element][7] + '<br>'
                            + '<b>' + 'Severity: ' + '</b>' + CL_changes[element][6]})
-
 
         term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
         term_nodes = [{'id': 0, 'label': 'Start'}]
