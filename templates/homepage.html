@@ -95,10 +95,7 @@
                         nodes: nodes,
                         edges: edges
                     };
-                    var options = {
-                        interaction:{
-                            tooltipDelay: 3600000}
-                    };
+                    var options = JSON.parse('{{ term_options|safe }}');
 
                     // initialize your network!
                     var network1 = new vis.Network(container, data, options);
@@ -138,10 +135,7 @@
                         nodes: nodes,
                         edges: edges
                     };
-                    var options = {
-                        interaction:{
-                            tooltipDelay: 3600000}
-                    };
+                    var options = JSON.parse('{{ CL_options|safe }}');
 
                     // initialize your network!
                     var network = new vis.Network(container, data, options);
