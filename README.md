@@ -1,7 +1,7 @@
 # CDISC Controlled Terminology Visualization Tool
 This repository consists of files for a browser based visualization of the changes of CDISC controlled terminology (CT) codelists and terms for a selected time period. The codelist, term, and changes data are stored in a local sqlite database. There are 3 main python files: app.py, database.py, and query.py.
 
-Currently, it only supports SDTM and CDASH standards, but can be expanded to other standards by editing the first if statement in `get_packages()`.
+Currently, it only supports SDTM and CDASH standards, but can be expanded to other standards by editing the first if statement in `get_packages()` in database.py.
 
 ## app.py
 app.py functions as the frontend of the project. **Note that it requires the local database be already be created**
