@@ -320,7 +320,7 @@ def update_database(standard):
         print("Packages updated")
 
         for i in changes:
-            read_changes(i[0], i[1])
+            read_changes(i[0], i[1], standard)
             print(i[0], "changes loaded")
         print("Changelists updated")
     # Otherwise, nothing to upload
