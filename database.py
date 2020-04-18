@@ -161,7 +161,7 @@ def read_data(date, filePath, standard):
 
 
 # Adds the changes into the database
-def read_changes(date, filePath):
+def read_changes(date, filePath, standard):
     connection = sql.connect('CDISC.db')
     data = pd.read_csv(filePath, sep='\t', engine='python')
 
@@ -224,8 +224,8 @@ def read_changes(date, filePath):
         except sql.IntegrityError:
             # If it is a removed term, termType will be "Term"
             # If it is a removed codelist, termType will be "CDISC Codelist"
-            connection.execute('INSERT INTO Code(Code, Term_Type, Creation_Date, Current_Version, Deprecation_Date)'
-                               'VALUES(?, ?, ?, ?, ?);', (code, termType, date, date, date))
+            connection.execute('INSERT INTO Code(Code, Term_Type, Standard, Creation_Date, Current_Version, Deprecation_Date)'
+                               'VALUES(?, ?, ?, ?, ?, ?);', (code, termType, standard, date, date, date))
 
             connection.execute('INSERT INTO Changes(Date, Code, Codelist, Term_Type, Request_Code, Change_Type, Severity, Change_Summary, Original, New, Change_Instructions)'
                                'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', (date, code, codelistShort, termType, reqCode, changeType, severity, summary, original, new, instructions))
@@ -289,7 +289,7 @@ def initial_load(firstPackageDate = "2014-10-06", standard="SDTM"):
     print("Packages loaded")
 
     for i in changes:
-        read_changes(i[0], i[1])
+        read_changes(i[0], i[1], standard)
         print(i[0], "changes loaded")
     print("Changelists loaded")
 
@@ -320,7 +320,7 @@ def update_database(standard):
         print("Packages updated")
 
         for i in changes:
-            read_changes(i[0], i[1])
+            read_changes(i[0], i[1], standard)
             print(i[0], "changes loaded")
         print("Changelists updated")
     # Otherwise, nothing to upload
