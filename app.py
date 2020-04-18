@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import query
 from datetime import datetime
 import json
+import textwrap
 
 app = Flask(__name__)
 host = 'http://127.0.0.1:5000/'
@@ -38,35 +39,54 @@ def home():
         CL_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(CL_changes)):
             if len(CL_changes[element][8]) > 60 and len(CL_changes[element][9]) > 60:
-                splitted_sentence, splitted_sentence1 = CL_changes[element][8].split(" "), CL_changes[element][9].split(" ")
-                first, first1 = splitted_sentence[0:int(len(splitted_sentence) / 2)], splitted_sentence[0:int(len(splitted_sentence1) / 2)]
-                last, last1 = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)], splitted_sentence1[int(len(splitted_sentence1) / 2): len(splitted_sentence1)]
-                first, last = " ".join(first), " ".join(last)
-                first1, last1, = " ".join(first1), " ".join(last1)
+
+                original_lines = textwrap.TextWrapper(width=50)
+                new_lines = textwrap.TextWrapper(width=50)
+                original_list = original_lines.wrap(text=CL_changes[element][8])
+                new_list = new_lines.wrap(text=CL_changes[element][9])
+
+                original, new = "", ""
+                for word in original_list:
+                    original += word + "<br>"
+                for word in new_list:
+                    new += word + "<br>"
+
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
-                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last
-                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first1 + '<br>' + last1})
+                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + original +
+                                            '<b>' + 'New: ' + '</b>' + new})
 
             elif len(CL_changes[element][8]) > 60:
-                splitted_sentence = CL_changes[element][8].split(" ")
-                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
-                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
-                first, last = " ".join(first), " ".join(last)
-                CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
-                                 'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
-                                  + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last + '<br>'
-                                  + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+                original_lines = textwrap.TextWrapper(width=50)
+                original_list = original_lines.wrap(text=CL_changes[element][8])
 
-            elif len(CL_changes[element][9]) > 60:
-                splitted_sentence = CL_changes[element][9].split(" ")
-                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
-                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
-                first, last = " ".join(first), " ".join(last)
+                original = ""
+                for word in range(len(original_list)):
+                    if word == len(original_list) - 1:
+                        original += original_list[word]
+                    else:
+                        original += original_list[word] + "<br>"
+
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
-                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8]
-                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first + '<br>' + last})
+                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + original
+                                            + '<br>' + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+
+            elif len(CL_changes[element][9]) > 60:
+                new_lines = textwrap.TextWrapper(width=50)
+                new_list = new_lines.wrap(text=CL_changes[element][9])
+
+                new = ""
+                for word in range(len(new_list)):
+                    if word == len(new_list) - 1:
+                        new += new_list[word]
+                    else:
+                        new += new_list[word] + "<br>"
+
+                CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
+                                   'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
+                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8]
+                                            + '<br>' + '<b>' + 'New: ' + '</b>' + new})
 
             else:
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
@@ -98,35 +118,56 @@ def home():
         term_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(term_changes)):
             if len(term_changes[element][8]) > 60 and len(term_changes[element][9]) > 60:
-                splitted_sentence, splitted_sentence1 = term_changes[element][8].split(" "), term_changes[element][9].split(" ")
-                first, first1 = splitted_sentence[0:int(len(splitted_sentence) / 2)], splitted_sentence[0:int(len(splitted_sentence1) / 2)]
-                last, last1 = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)], splitted_sentence1[int(len(splitted_sentence1) / 2): len(splitted_sentence1)]
-                first, last = " ".join(first), " ".join(last)
-                first1, last1, = " ".join(first1), " ".join(last1)
+
+                original_lines = textwrap.TextWrapper(width=50)
+                new_lines = textwrap.TextWrapper(width=50)
+                original_list = original_lines.wrap(text=term_changes[element][8])
+                new_list = new_lines.wrap(text=term_changes[element][9])
+
+                original, new = "", ""
+                for word in original_list:
+                    original += word + "<br>"
+                for word in new_list:
+                    new += word + "<br>"
+
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
-                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last
-                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first1 + '<br>' + last1})
+                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + original +
+                                            '<b>' + 'New: ' + '</b>' + new})
 
             elif len(term_changes[element][8]) > 60:
-                splitted_sentence = term_changes[element][8].split(" ")
-                first = splitted_sentence[0:int(len(splitted_sentence)/2)]
-                last = splitted_sentence[int(len(splitted_sentence)/2): len(splitted_sentence)]
-                first, last = " ".join(first), " ".join(last)
+
+                original_lines = textwrap.TextWrapper(width=50)
+                original_list = original_lines.wrap(text=term_changes[element][8])
+
+                original = ""
+                for word in range(len(original_list)):
+                    if word == len(original_list) - 1:
+                        original += original_list[word]
+                    else:
+                        original += original_list[word] + "<br>"
+
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
-                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + first + '<br>' + last
+                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + original
                                     + '<br>' + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
 
             elif len(term_changes[element][9]) > 60:
-                splitted_sentence = term_changes[element][9].split(" ")
-                first = splitted_sentence[0:int(len(splitted_sentence) / 2)]
-                last = splitted_sentence[int(len(splitted_sentence) / 2): len(splitted_sentence)]
-                first, last = " ".join(first), " ".join(last)
+
+                new_lines = textwrap.TextWrapper(width=50)
+                new_list = new_lines.wrap(text=term_changes[element][9])
+
+                new = ""
+                for word in range(len(new_list)):
+                    if word == len(new_list) - 1:
+                        new += new_list[word]
+                    else:
+                        new += new_list[word] + "<br>"
+
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
                                     + '<br>' + '<b>' + 'Original: ' + '</b>' + term_changes[element][8]
-                                    + '<br>' + '<b>' + 'New: ' + '</b>' + first + '<br>' + last})
+                                    + '<br>' + '<b>' + 'New: ' + '</b>' + new})
 
             else:
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
