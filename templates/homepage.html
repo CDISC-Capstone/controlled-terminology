@@ -26,21 +26,21 @@
     <div class="ui form" id="form">
         <div class="two fields" id="fields">
             <div class="field">
-                <label>Start date</label>
+                <label>Start date <span>*</span></label>
                 <div class="ui calendar" id="rangestart">
                     <div class="ui input left icon" id="left_field">
                         <i class="calendar icon"></i>
-                        <input type="text" placeholder="Start" name="start_date" value="{{ request.form.start_date }}">
+                        <input type="text" placeholder="Start" name="start_date" value="{{ request.form.start_date }}" required>
                     </div>
                 </div>
             </div>
 
             <div class="field">
-                <label>End date</label>
+                <label>End date <span>*</span></label>
                 <div class="ui calendar" id="rangeend">
                     <div class="ui input left icon" id="right_field">
                         <i class="calendar icon"></i>
-                        <input type="text" placeholder="End" name="end_date" value="{{ request.form.end_date }}">
+                        <input type="text" placeholder="End" name="end_date" value="{{ request.form.end_date }}" required>
                     </div>
                 </div>
             </div>
@@ -48,9 +48,9 @@
     </div>
 
     <div id="code_dropdown">
-        <label><b>Choose a codelist:</b></label>
+        <label><b>Choose a codelist</b> <span>*</span></label>
         <div>
-            <select class="js-example-basic-single" id="codelist" name="codelist" value="{{ request.form.codelist }}" onChange="changeterm(this.value);">
+            <select class="js-example-basic-single" id="codelist" name="codelist" value="{{ request.form.codelist }}" onChange="changeterm(this.value);" required>
                 <option value="" disabled selected></option>
                 {% for codelist, name in list_of_codes %}
                     <option type="text" name="codelist" value="{{ codelist }}"> {{codelist}} - {{name}}</option>
@@ -61,7 +61,7 @@
 
 
     <div id="term_dropdown">
-        <label><b>Choose a term:</b></label>
+        <label><b>Choose a term</b></label>
         <div>
             <select class="js-example-basic-single" id="terms" name="terms" value="{{ request.form.terms }}">
                     <option type="text" name="terms" value="" disabled selected></option>
@@ -76,46 +76,48 @@
 
     {% if submitted %}
         <div id="visuals">
-            <div id="term_visual">
-                <h1> Visualization of Change(s) from Term: {{ term }} </h1>
+            {% if term_empty is sameas false %}
+                <div id="term_visual">
+                    <h1> Visualization of Change(s) from Term: {{ term }} </h1>
 
-                <div id="term_changes"></div>
-                <script type="text/javascript">
-                    // create an array with nodes
-                    var nodes = new vis.DataSet(JSON.parse('{{ term_nodes|safe }}'));
+                    <div id="term_changes"></div>
+                    <script type="text/javascript">
+                        // create an array with nodes
+                        var nodes = new vis.DataSet(JSON.parse('{{ term_nodes|safe }}'));
 
-                    // create an array with edges
-                    var edges = new vis.DataSet(JSON.parse('{{ term_edges|safe }}'));
+                        // create an array with edges
+                        var edges = new vis.DataSet(JSON.parse('{{ term_edges|safe }}'));
 
-                    // create a network
-                    var container = document.getElementById('term_changes');
+                        // create a network
+                        var container = document.getElementById('term_changes');
 
-                    // provide the data in the vis format
-                    var data = {
-                        nodes: nodes,
-                        edges: edges
-                    };
-                    var options = JSON.parse('{{ term_options|safe }}');
+                        // provide the data in the vis format
+                        var data = {
+                            nodes: nodes,
+                            edges: edges
+                        };
+                        var options = JSON.parse('{{ term_options|safe }}');
 
-                    // initialize your network!
-                    var network1 = new vis.Network(container, data, options);
-                    network1.on("click", function (params) {
-                          // Check if you clicked on a node; if so, display the title (if any) in a popup
-                          network1.interactionHandler._checkShowPopup(params.pointer.DOM);
-                        });
-                </script>
+                        // initialize your network!
+                        var network1 = new vis.Network(container, data, options);
+                        network1.on("click", function (params) {
+                              // Check if you clicked on a node; if so, display the title (if any) in a popup
+                              network1.interactionHandler._checkShowPopup(params.pointer.DOM);
+                            });
+                    </script>
 
-                <div id="term_info">
-                    <p class="info_text"> <b> Codelist: </b> {{ term_current[0][0] }}</p>
-                    <p class="info_text"> <b> Definition: </b> {{ term_current[0][4] }}</p>
-                    <p class="info_text"> <b> Synonym(s): </b> {{ term_current[0][3] }}</p>
-                    <p class="info_text"> <b> Creation Date: </b> {{ term_activeDates[0][0] }} </p>
-                    <p class="info_text"> <b> Deprecation Date: </b> {{ term_activeDates[0][1] }} </p>
-                    <p class="info_text"> <b> Submission Value: </b> {{ term_current[0][2] }}</p>
-                    <p class="info_text"> <b> NCI Preferred Term: </b> {{ term_activeDates[0][5] }}</p>
+                    <div id="term_info">
+                        <p class="info_text"> <b> Codelist: </b> {{ term_current[0][0] }}</p>
+                        <p class="info_text"> <b> Definition: </b> {{ term_current[0][4] }}</p>
+                        <p class="info_text"> <b> Synonym(s): </b> {{ term_current[0][3] }}</p>
+                        <p class="info_text"> <b> Creation Date: </b> {{ term_activeDates[0][0] }} </p>
+                        <p class="info_text"> <b> Deprecation Date: </b> {{ term_activeDates[0][1] }} </p>
+                        <p class="info_text"> <b> Submission Value: </b> {{ term_current[0][2] }}</p>
+                        <p class="info_text"> <b> NCI Preferred Term: </b> {{ term_activeDates[0][5] }}</p>
+                    </div>
                 </div>
-            </div>
-            <div style="height: 20px"></div>
+            {% endif %}
+
             <div id="code_visual">
                 <h1>  Visualization of Change(s) from Codelist: {{ codelist }} </h1>
 

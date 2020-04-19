@@ -7,6 +7,10 @@ body {
     height: 30px;
 }
 
+label span {
+    color: red;
+}
+
 #form, #fields {
     align-items: center;
     text-align: center;
