@@ -122,16 +122,12 @@ def read_data(date, filePath, standard):
         definition = row['CDISC Definition']
         nci = row['NCI Preferred Term']
 
-        # Inserts term into table
+        # Inserts term into Code table
         try:
             # Insert into Code table if not already in table
             connection.execute('INSERT INTO Code(Code, Term_Type, Standard, Creation_Date, Current_Version, Deprecation_Date)'
                                'VALUES (?, ?, ?, ?, ?, ?);', (code, "Term", standard, date, date, None))
-
-            # Insert into Term table if not already in table
-            connection.execute('INSERT INTO Term(Codelist, Code, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
-                               'VALUES (?, ?, ?, ?, ?, ?);', (codelistCode, code, value, synonyms, definition, nci))
-        # If term is already in tables (throws error), update tables as necessary
+        # If term is already in Code (throws error), update tables as necessary
         except sql.IntegrityError:
             # Get version date of what's in the database
             versionDate = connection.execute('SELECT Current_Version '
@@ -151,10 +147,18 @@ def read_data(date, filePath, standard):
                                    'SET Current_Version = ? '
                                    'WHERE Code = ?', (date, code))
 
-                # Update term values with current version, even if nothing has changed
-                connection.execute('UPDATE Term '
-                                   'SET Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
-                                   'WHERE Codelist = ? AND Code = ?;', (value, synonyms, definition, nci, codelistCode, code))
+        # Insert term into Term table
+        try:
+            # Attempt to insert into Term table (successful if not already in it)
+            connection.execute(
+                'INSERT INTO Term(Codelist, Code, Submission_Value, Synonyms, Definition, NCI_Preferred_Term)'
+                'VALUES (?, ?, ?, ?, ?, ?);', (codelistCode, code, value, synonyms, definition, nci))
+        # If this raises an error, then update what's in the table
+        except sql.IntegrityError:
+            # Update term values with current version, even if nothing has changed
+            connection.execute('UPDATE Term '
+                               'SET Submission_Value = ?, Synonyms = ?, Definition = ?, NCI_Preferred_Term = ? '
+                               'WHERE Codelist = ? AND Code = ?;', (value, synonyms, definition, nci, codelistCode, code))
         connection.commit()
 
     connection.close()
@@ -341,4 +345,4 @@ def manual_load_data(date, package, changelog, standard):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    create_tables()
+    pass
