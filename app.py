@@ -36,14 +36,19 @@ def home():
         endDate = datetime.strptime(endDate, '%B %d, %Y').strftime('%Y-%d-%m')
 
         CL_activeDates, CL_current, CL_changes = query.get_codelist_changes(codelist, startDate, endDate)
+
         CL_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(CL_changes)):
-            if len(CL_changes[element][8]) > 60 and len(CL_changes[element][9]) > 60:
+
+            original_CL = CL_changes[element][8].replace("'", "`")
+            new_CL = CL_changes[element][9].replace("'", "`")
+
+            if len(original_CL) > 60 and len(new_CL) > 60:
 
                 original_lines = textwrap.TextWrapper(width=50)
                 new_lines = textwrap.TextWrapper(width=50)
-                original_list = original_lines.wrap(text=CL_changes[element][8])
-                new_list = new_lines.wrap(text=CL_changes[element][9])
+                original_list = original_lines.wrap(text=original_CL)
+                new_list = new_lines.wrap(text=new_CL)
 
                 original, new = "", ""
                 for word in original_list:
@@ -56,9 +61,9 @@ def home():
                                             + '<br>' + '<b>' + 'Original: ' + '</b>' + original +
                                             '<b>' + 'New: ' + '</b>' + new})
 
-            elif len(CL_changes[element][8]) > 60:
+            elif len(original_CL) > 60:
                 original_lines = textwrap.TextWrapper(width=50)
-                original_list = original_lines.wrap(text=CL_changes[element][8])
+                original_list = original_lines.wrap(text=original_CL)
 
                 original = ""
                 for word in range(len(original_list)):
@@ -70,11 +75,11 @@ def home():
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
                                             + '<br>' + '<b>' + 'Original: ' + '</b>' + original
-                                            + '<br>' + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+                                            + '<br>' + '<b>' + 'New: ' + '</b>' + new_CL})
 
-            elif len(CL_changes[element][9]) > 60:
+            elif len(new_CL) > 60:
                 new_lines = textwrap.TextWrapper(width=50)
-                new_list = new_lines.wrap(text=CL_changes[element][9])
+                new_list = new_lines.wrap(text=new_CL)
 
                 new = ""
                 for word in range(len(new_list)):
@@ -85,14 +90,14 @@ def home():
 
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b> </u>'
-                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8]
+                                            + '<br>' + '<b>' + 'Original: ' + '</b>' + original_CL
                                             + '<br>' + '<b>' + 'New: ' + '</b>' + new})
 
             else:
                 CL_nodes.append({'id': element + 1, 'label': CL_changes[element][0],
                               'title': 'Change made on ' + '<b><u>' + CL_changes[element][0] + '</b></u>' + '<br>'
-                               + '<b>' + 'Original: ' + '</b>' + CL_changes[element][8] + '<br>'
-                               + '<b>' + 'New: ' + '</b>' + CL_changes[element][9]})
+                               + '<b>' + 'Original: ' + '</b>' + original_CL + '<br>'
+                               + '<b>' + 'New: ' + '</b>' + new_CL})
 
         CL_edges = []
         for element in range(len(CL_changes)):
@@ -115,14 +120,19 @@ def home():
         }
 
         term_activeDates, term_current, term_changes = query.get_term_changes(term, startDate, endDate)
+
         term_nodes = [{'id': 0, 'label': 'Start'}]
         for element in range(len(term_changes)):
-            if len(term_changes[element][8]) > 60 and len(term_changes[element][9]) > 60:
+
+            original_term = term_changes[element][8].replace("'", "`")
+            new_term = term_changes[element][9].replace("'", "`")
+
+            if len(original_term) > 60 and len(new_term) > 60:
 
                 original_lines = textwrap.TextWrapper(width=50)
                 new_lines = textwrap.TextWrapper(width=50)
-                original_list = original_lines.wrap(text=term_changes[element][8])
-                new_list = new_lines.wrap(text=term_changes[element][9])
+                original_list = original_lines.wrap(text=original_term)
+                new_list = new_lines.wrap(text=new_term)
 
                 original, new = "", ""
                 for word in original_list:
@@ -135,10 +145,10 @@ def home():
                                             + '<br>' + '<b>' + 'Original: ' + '</b>' + original +
                                             '<b>' + 'New: ' + '</b>' + new})
 
-            elif len(term_changes[element][8]) > 60:
+            elif len(original_term) > 60:
 
                 original_lines = textwrap.TextWrapper(width=50)
-                original_list = original_lines.wrap(text=term_changes[element][8])
+                original_list = original_lines.wrap(text=original_term)
 
                 original = ""
                 for word in range(len(original_list)):
@@ -150,12 +160,12 @@ def home():
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
                                     + '<br>' + '<b>' + 'Original: ' + '</b>' + original
-                                    + '<br>' + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
+                                    + '<br>' + '<b>' + 'New: ' + '</b>' + new_term})
 
-            elif len(term_changes[element][9]) > 60:
+            elif len(new_term) > 60:
 
                 new_lines = textwrap.TextWrapper(width=50)
-                new_list = new_lines.wrap(text=term_changes[element][9])
+                new_list = new_lines.wrap(text=new_term)
 
                 new = ""
                 for word in range(len(new_list)):
@@ -166,14 +176,14 @@ def home():
 
                 term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
                                    'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b> </u>'
-                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + term_changes[element][8]
+                                    + '<br>' + '<b>' + 'Original: ' + '</b>' + original_term
                                     + '<br>' + '<b>' + 'New: ' + '</b>' + new})
 
             else:
-                term_nodes.append({'id': element + 1, 'label': term_changes[element][0],
-                                 'title': 'Change made on ' + '<b><u>' + term_changes[element][0] + '</b></u>' + '<br>'
-                                  + '<b>' + 'Original: ' + '</b>' + term_changes[element][8] + '<br>'
-                                  + '<b>' + 'New: ' + '</b>' + term_changes[element][9]})
+                term_nodes.append({"id": element + 1, "label": term_changes[element][0],
+                                 "title": "Change made on " + "<b><u>" + term_changes[element][0] + "</b></u>" + "<br>"
+                                  + "<b>" + "Original: " + "</b>" + original_term + "<br>"
+                                  + "<b>" + "New: " + "</b>" + new_term})
 
         term_edges = []
         for element in range(len(term_changes)):
