@@ -181,8 +181,8 @@ def read_changes(date, filePath, standard):
         changeType = row['Change Type']
         code = row['NCI Code']
         summary = row['Change Summary']
-        original = row['Original']
-        new = row['New']
+        original = str(row['Original'])
+        new = str(row['New'])
 
         # Older changelists do not have change instruction column so have 10 columns total
         # If there are change instructions (11 columns), extract it
@@ -345,4 +345,8 @@ def manual_load_data(date, package, changelog, standard):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    pass
+    data = pd.read_csv(r"C:\Users\voidt\Downloads\SDTM Terminology Changes 2019-12-20.txt", sep='\t')
+    orig = data[data["Original"].isna()][["NCI Code", "Original", "New"]]
+
+    for i, row in orig.iterrows():
+        print(row["Original"])
