@@ -117,8 +117,8 @@ def read_data(date, filePath, standard):
     for i, row in terms.iterrows():
         code = row['Code']
         codelistCode = row['Codelist Code']
-        value = row['CDISC Submission Value']
-        synonyms = row['CDISC Synonym(s)']
+        value = str(row['CDISC Submission Value'])
+        synonyms = str(row['CDISC Synonym(s)'])
         definition = row['CDISC Definition']
         nci = row['NCI Preferred Term']
 
