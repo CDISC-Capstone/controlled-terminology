@@ -122,6 +122,12 @@ def read_data(date, filePath, standard):
         definition = row['CDISC Definition']
         nci = row['NCI Preferred Term']
 
+        if value == "nan":
+            value = "NA"
+
+        if synonyms == "nan":
+            synonyms = "NA"
+
         # Inserts term into Code table
         try:
             # Insert into Code table if not already in table
@@ -345,8 +351,5 @@ def manual_load_data(date, package, changelog, standard):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    data = pd.read_csv(r"C:\Users\voidt\Downloads\SDTM Terminology Changes 2019-12-20.txt", sep='\t')
-    orig = data[data["Original"].isna()][["NCI Code", "Original", "New"]]
-
-    for i, row in orig.iterrows():
-        print(row["Original"])
+    create_tables()
+    initial_load()
