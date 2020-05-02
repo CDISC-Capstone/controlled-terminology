@@ -100,7 +100,7 @@ def home():
         CL_edges = []
         for element in range(len(CL_changes)):
             if CL_changes[element][6] == "Minor":
-                color = "#fce703"
+                color = "green"
             elif CL_changes[element][6] == "Moderate":
                 color = "#fc8003"
             elif CL_changes[element][6] == "Major":
@@ -110,7 +110,8 @@ def home():
 
             CL_edges.append({'from': element, 'to': element + 1, 'arrows': 'to', 'color': color,
                           'title': '<b>' + 'Change Type: ' + '</b>' + CL_changes[element][5] + '<br>'
-                           + '<b>' + 'Summary: ' + '</b>' + CL_changes[element][7]})
+                           + '<b>' + 'Summary: ' + '</b>' + CL_changes[element][7] + '<br>'
+                           + '<b>'+ 'Severity: ' + '</b>' + CL_changes[element][6]})
 
         CL_options = {
             'interaction': {
@@ -188,7 +189,7 @@ def home():
             term_edges = []
             for element in range(len(term_changes)):
                 if term_changes[element][6] == "Minor":
-                    color = "#fce703"
+                    color = "green"
                 elif term_changes[element][6] == "Moderate":
                     color = "#fc8003"
                 elif term_changes[element][6] == "Major":
@@ -198,7 +199,8 @@ def home():
 
                 term_edges.append({'from': element, 'to': element + 1, 'arrows': 'to', 'color': color,
                                  'title': '<b>' + 'Change Type: ' + '</b>' + term_changes[element][5] + '<br>'
-                                          + '<b>' + 'Summary: ' + '</b>' + term_changes[element][7]})
+                                          + '<b>' + 'Summary: ' + '</b>' + term_changes[element][7]+ '<br>'
+                                          + '<b>' + 'Severity: ' + '</b>' + term_changes[element][6]})
             term_options = {
                 'interaction': {
                     'tooltipDelay': 3600000}

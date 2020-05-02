@@ -51,6 +51,28 @@ label span {
 	transition: 0.7s;
 }
 
+#key {
+    float:left;
+    position: absolute;
+    background-color: #9af2ff;
+}
+
+.key_text {
+
+}
+
+.minor {
+  color: green;
+}
+
+.moderate {
+    color: orange;
+}
+
+.major {
+    color: red;
+}
+
 #code_visual {
     text-align: center;
     width: 100%;

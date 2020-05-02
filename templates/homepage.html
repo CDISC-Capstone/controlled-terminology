@@ -80,6 +80,12 @@
                 <div id="term_visual">
                     <h1> Visualization of Change(s) from Term: {{ term }} </h1>
 
+                    <div id="key">
+                        <p class="key_text"> Edges: <br>
+                            <b>Severity</b> -
+                            <em class="minor">Minor</em> <em class="moderate">Moderate</em> <em class="major">Major</em> </p>
+                    </div>
+
                     <div id="term_changes"></div>
                     <script type="text/javascript">
                         // create an array with nodes
@@ -105,7 +111,6 @@
                               network1.interactionHandler._checkShowPopup(params.pointer.DOM);
                             });
                     </script>
-
                     <div id="term_info">
                         <p class="info_text"> <b> Codelist: </b> {{ term_current[0][0] }}</p>
                         <p class="info_text"> <b> Definition: </b> {{ term_current[0][4] }}</p>
@@ -120,6 +125,13 @@
 
             <div id="code_visual">
                 <h1>  Visualization of Change(s) from Codelist: {{ codelist }} </h1>
+
+                <div id="key">
+                    <p class="key_text"> Edges: <br>
+                        <b>Severity</b> -
+                        <em class="minor">Minor</em> <em class="moderate">Moderate</em> <em class="major">Major</em>
+                    </p>
+                </div>
 
                 <div id="code_changes"></div>
                 <script type="text/javascript">
