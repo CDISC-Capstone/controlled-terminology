@@ -117,10 +117,16 @@ def read_data(date, filePath, standard):
     for i, row in terms.iterrows():
         code = row['Code']
         codelistCode = row['Codelist Code']
-        value = row['CDISC Submission Value']
-        synonyms = row['CDISC Synonym(s)']
+        value = str(row['CDISC Submission Value'])
+        synonyms = str(row['CDISC Synonym(s)'])
         definition = row['CDISC Definition']
         nci = row['NCI Preferred Term']
+
+        if value == "nan":
+            value = "NA"
+
+        if synonyms == "nan":
+            synonyms = "NA"
 
         # Inserts term into Code table
         try:
@@ -181,8 +187,8 @@ def read_changes(date, filePath, standard):
         changeType = row['Change Type']
         code = row['NCI Code']
         summary = row['Change Summary']
-        original = row['Original']
-        new = row['New']
+        original = str(row['Original'])
+        new = str(row['New'])
 
         # Older changelists do not have change instruction column so have 10 columns total
         # If there are change instructions (11 columns), extract it
@@ -345,4 +351,5 @@ def manual_load_data(date, package, changelog, standard):
 
 # Debugging/Testing section
 if __name__ == "__main__":
-    pass
+    create_tables()
+    initial_load()
